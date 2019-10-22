@@ -1,6 +1,8 @@
 import _ from 'lodash';
 
 let refs;
+let failed;
+let handleFailure;
 
 // Jasmine doesn't yet have an option to fail fast. This "reporter" is a workaround for the time
 // being, making Jasmine essentially skip all tests after the first failure.
@@ -10,17 +12,33 @@ export function init(alreadyFailed = false, onFailure) {
   refs = getSpecReferences();
 
   if (alreadyFailed) xEverything(refs)
+  failed = alreadyFailed
+  handleFailure = onFailure
 
   return {
     specDone(result) {
       if (result.status === 'failed') {
-        disableSpecs(refs);
-        if (alreadyFailed || !onFailure) return
-        alreadyFailed = true
-        onFailure()
+        shutItDown()
       }
     }
   };
+}
+
+export function shutItDown() {
+  console.log([
+    '| ',
+    '|  🔥     🚀',
+    '| 💥💥💥',
+    '| 🔥🔥 FAIL FAST 🔥💥',
+    '| 💥🌶',
+    '|  🔥',
+    '| 💥',
+    '| ',
+    ].join('\n'))
+  disableSpecs(refs);
+  if (failed || !handleFailure) return
+  failed = true
+  handleFailure()
 }
 
 /**
@@ -52,14 +70,15 @@ export function xEverything() {
  * @return {Object} An object with `specs` and `suites` properties, arrays of respective types.
  */
 export function getSpecReferences() {
-  let specs = [];
-  let suites = [];
+  const specs = [];
+  const suites = [];
 
   // Use specFilter to gather references to all specs.
   jasmine.getEnv().specFilter = spec => {
     specs.push(spec);
     return true;
   };
+
 
   // Wrap jasmine's describe function to gather references to all suites.
   jasmine.getEnv().describe = _.wrap(jasmine.getEnv().describe,
@@ -71,9 +90,10 @@ export function getSpecReferences() {
 
   return {
     specs,
-    suites
+    suites,
   };
 }
+
 
 /**
  * Hacky workaround to facilitate "fail fast". Disable all specs (basically `xit`), then
