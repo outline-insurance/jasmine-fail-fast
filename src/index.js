@@ -18,13 +18,19 @@ export function init(alreadyFailed = false, onFailure) {
   return {
     specDone(result) {
       if (result.status === 'failed') {
-        shutItDown()
+        console.error(`Spec '${result.description}' failed...`)
+        const expectation = result.failedExpectations[0]
+        if (expectation) {
+          console.error(expectation.stack)
+        }
+        shutItDown(false)
       }
     }
   };
 }
 
-export function shutItDown() {
+export function shutItDown(manual = true) {
+  if (manual) console.error('The application requested we...')
   console.log([
     '| ',
     '| ',
@@ -35,7 +41,7 @@ export function shutItDown() {
     '| 🔥🔥 FAIL FAST 🔥💥',
     '| 🔥🌶🔥',
     '| 🔥',
-    '| 🔥',
+    '| '+(manual ? '🔥👌' : '💥'),
     '| '].join('\n'));
   disableSpecs(refs);
   if (failed || !handleFailure) return
