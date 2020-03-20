@@ -1,0 +1,12 @@
+name: Tech Debt Interest Payment Reminder
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  comment:
+    - name: Suggest
+      uses: github-actions-up-and-running/pr-comment@v1.0.0
+      with:
+        myInput: Nice coding! Just a friendly invitation.... if you think PR could have been done a little quicker, if some underlying piece of tech debt were addressed, consider filling out a [Tech Debt Interest Payment Report](https://form.asana.com?hash=d4c577b36827ee68c83eeb173c8ca606cc3584f9a7c6b4d93865212817fb975f&id=1162137216635025). Filling these out will help us prioritize fixing the things that have the highest cost! Thank you!!\n\n_[This is an automated message, DM Erik if you want to stop receiving these on your PRs]_
